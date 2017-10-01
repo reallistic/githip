@@ -1,6 +1,7 @@
 sanic==0.6.0
 jinja2>=2.9.6
 ujson
+aiohttp
 
 
 # Dev deps
