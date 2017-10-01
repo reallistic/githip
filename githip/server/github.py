@@ -40,8 +40,10 @@ async def _make_request(session, url, method, params, json):
         try:
             resp.raise_for_status()
         except aiohttp.ClientResponseError:
-            log.exception('error making request %s %s', url, (params or json))
+            log.exception('error making request %s %s %s', url,
+                          (params or json), resp.headers)
             raise ApiError('Bad Request', code='GithubError')
+
         data = await resp.json(loads=json_loads)
         return resp.headers, data
 
@@ -75,7 +77,7 @@ async def make_request(endpoint, method='GET', *, headers=None, params=None,
         else:
             return data
 
-        if False and follow_pages:
+        if follow_pages:
             links = headers.get('Link')
             _, next_link = parse_links(links)
 
@@ -91,58 +93,26 @@ async def make_request(endpoint, method='GET', *, headers=None, params=None,
 
 
 """
-NOTES:
-
-Caching:
+NOTES on caching:
 
     By adding ensure_future, we convert the
     coroutine to a asyncio.Task which can be
-    `await`ed multiple times such that the cache still
-    works and it doesn't change the callers api.
-
-
-Speed:
-
-    we only  keep the data we need which speeds up transit time
-
+    `await`ed multiple times and return the same results.
+    This allows the lru_cache to work because the Task
+    object is what gets stored in the cache.
 """
-
-
-async def _get_organization_members(org_name):
-    data = await make_request(
-        '/orgs/%s/members' % org_name,
-        params=dict(filter='all', role='all')
-    )
-
-    data = [member['login'] for member in data]
-    return data
 
 
 @lru_cache(maxsize=256)
 def get_organization_members(org_name):
-    return asyncio.ensure_future(_get_organization_members(org_name))
-
-
     return asyncio.ensure_future(make_request(
         '/orgs/%s/members' % org_name,
         params=dict(filter='all', role='all')
     ))
 
 
-async def _get_organization_repos(org_name):
-    data = await make_request(
-        '/orgs/%s/repos' % org_name,
-        params=dict(type='public')
-    )
-    data = [repo['full_name'] for repo in data]
-    return data
-
-
 @lru_cache(maxsize=256)
 def get_organization_repos(org_name):
-    return asyncio.ensure_future(_get_organization_repos(org_name))
-
-
     return asyncio.ensure_future(make_request(
         '/orgs/%s/repos' % org_name,
         params=dict(type='public')
