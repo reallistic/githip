@@ -84,12 +84,12 @@ def get_response_log(response):
         else:
             body = ('body', response.body)
     else:
-        body = '<REDACTED>'
+        body = ('body', '<REDACTED>')
 
     rv = OrderedDict((
         ('status', response.status),
-        ('body', body),
-        ('headers', dict(response.headers.items()) or None)
+        ('headers', dict(response.headers.items()) or None),
+        body
     ))
 
     rv = clean_dict(rv)
