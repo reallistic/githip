@@ -1,7 +1,7 @@
 from .response import make_json_response
 
 
-class ApiError(BaseException):
+class ApiError(Exception):
 
     msg_template = '%(message)s code=%(code)s status_code=%(status_code)s'
 
@@ -11,9 +11,8 @@ class ApiError(BaseException):
         self.code = code
         super().__init__()
 
-    def make_json_response(self, request):
+    def make_json_response(self):
         return make_json_response(message=self.message, code=self.code,
-                                  request=request,
                                   status_code=self.status_code)
 
     def __str__(self):

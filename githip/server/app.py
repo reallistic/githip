@@ -19,8 +19,7 @@ def handle_server_error(request, exception):
 
 
 def handle_api_error(request, exception):
-    log.error(exception, exc_info=sys.exc_info())
-    return exception.make_json_response(request)
+    return exception.make_json_response()
 
 
 def create_app():
