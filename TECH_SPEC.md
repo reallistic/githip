@@ -44,6 +44,11 @@ GitHip uses the v3 github api to fetch all of its data. For data that does not o
 All data is crunched on the server so that the javascript code just needs to read and display it.
 The organization members api is used to display members, thus if you are looking at a org you are not a member of, concealed members are not displayed.
 
+### Errors
+We define a simple APIError in `githip/server/errors.py` which provides an escape hatch at any level to throw an HTTP error and give the user a proper status code and json response.
+The handlers for this error and the built in sanic errors are defined in `githip/server/app.py`.
+
+
 ### OSI calculation
 First, we retreive a list of all members of a organization, in parallel we also get a list of all public repositories.
 Once we have a list of repositories, we only keep forks with at least 10 stars + watchers. (This was arbitrary and may change later)
