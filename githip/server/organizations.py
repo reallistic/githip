@@ -1,4 +1,5 @@
 import asyncio
+import functools
 
 from . import github
 
@@ -12,35 +13,6 @@ MEMBER_KEYS = set(['id', 'login', 'type', 'url'])
 
 COMMIT_KEYS = set(['sha', 'url', 'html_url', 'author', 'commit.message',
                    'commit.author', 'commit.comment_count'])
-
-
-def calculate_commits_per_week(contrib_stats, members):
-    commits_per_week = 0
-    member_commits = 0
-    non_member_commits = 0
-    num_weeks = 0
-
-    for stats in contrib_stats:
-        author = stats['author']['login']
-        num_weeks = len(stats['weeks'])
-        for week in stats['weeks']:
-            # Total per week
-            commits_per_week += week['c']
-
-            if author in members:
-                # Total per week for members
-                member_commits += week['c']
-            else:
-                # Total per week for non_members
-                non_member_commits += week['c']
-
-    avg_per_week = float(commits_per_week) / float(num_weeks)
-
-    return (
-        avg_per_week,
-        member_commits,
-        non_member_commits,
-    )
 
 
 def get_repo_sort_key(repo):
@@ -90,6 +62,36 @@ def format_commit(commit):
     return result
 
 
+def add_commits(total, stats):
+    return sum(map(lambda week: week['c'], stats['weeks'])) + total
+
+
+def calculate_commits_per_week(contrib_stats):
+    total_commits = functools.reduce(add_commits, contrib_stats, 0)
+    num_weeks = len(contrib_stats[0]['weeks'])
+    avg_per_week = float(total_commits) / float(num_weeks)
+
+    return avg_per_week
+
+
+def calculate_commit_ratio(contrib_stats, members):
+    member_stats = []
+    non_member_stats = []
+
+    for stats in contrib_stats:
+        if stats['author']['login'] in members:
+            member_stats.append(stats)
+        else:
+            non_member_stats.append(stats)
+
+    member_commits = functools.reduce(add_commits, member_stats, 0)
+    non_member_commits = functools.reduce(add_commits, non_member_stats, 0)
+
+    ratio = float(non_member_commits) / float(member_commits)
+
+    return ratio
+
+
 async def get_members(org_name):
     members = await github.get_organization_members(org_name)
     members = list(map(select_member_keys, members))
@@ -105,18 +107,16 @@ async def get_repos(org_name):
 
 async def get_osi(org_name, repo):
     members, contrib_stats = await asyncio.gather(
-        github.get_repo_contributor_stats(org_name, repo),
-        get_members(org_name)
+        get_members(org_name),
+        github.get_repo_contributor_stats(org_name, repo)
     )
 
     members = set([member['login'] for member in members])
 
-    average, member, non_member = calculate_commits_per_week(
-        contrib_stats,
-        members
-    )
+    average = calculate_commits_per_week(contrib_stats)
+    ratio = calculate_commit_ratio(contrib_stats, members)
 
-    osi = float(non_member) / float(member) * average
+    osi = ratio * average
 
     return osi
 
