@@ -3,9 +3,9 @@ Git hip to the popularity of your organization's project on github
 
 
 # About
-GitHip will list all of the *public* repositories in your github organization ordered by watchers + stargazers in descending order.
+GitHip will list all of the **public** repositories in your github organization ordered by watchers + stargazers in descending order.
 Upon clicking through to a repo, it will show you some stats and the recent commits.
-GitHip introduces a stat called *open source index* or OSI for short.
+GitHip introduces a stat called **open source index** or OSI for short.
 The OSI is determined by *the ratio of average commits per week from non-organization members vs organization members multiplied by the average number of commits per week*.
 
 The idea is that repositories with a higher non-member/member commit ratio and a lot of activity will be more popular in the open source community.
