@@ -1,5 +1,4 @@
-from python:3.6-slim
-
+from python:3.6
 
 # Install node to build the client js.
 # NOTE: this is copied from https://github.com/nodejs/docker-node/blob/c37d5e87fa6d46c0e387f73161b056bbf90b83aa/8.6/slim/Dockerfile

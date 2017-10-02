@@ -24,7 +24,7 @@ class JSONFormatter(logging.Formatter):
 
     def format(self, record):
         """Formats a log record as a JSON string"""
-        indent = None
+        indent = 0
         if self.pretty or self.app.config.get('PRETTY_PRINT_LOGS'):
             indent = 4
 
@@ -106,7 +106,7 @@ def log_response(request, response):
 
 
 def setup_logger(app):
-    formatter = JSONFormatter(app, pretty=True)
+    formatter = JSONFormatter(app)
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(app.config.get('LOG_LEVEL'))
     stream_handler.setFormatter(formatter)

@@ -1,4 +1,12 @@
-githip:
-    context: .
-    ports:
-        - "5000:5000"
+version: "2"
+services:
+    githip:
+        build: .
+        ports:
+            - "5000:5000"
+        environment:
+            - CONFIG_CLS=Prod
+            - PORT=5000
+            - WORKER_COUNT=1
+            - PRETTY_PRINT_LOGS=False
+            - LOG_LEVEL=INFO
