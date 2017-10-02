@@ -57,3 +57,30 @@ For each repository we kept, we go and fetch the `repo/stats/contributors` infor
 Next, we calculate the total number of commits per week by adding up for each contributer O(n).
 In the same loop using the org member data, we keep track of how many commits were made per week by org members vs non-members.
 We then calculate average commits per week for the following groups: all contributors, non-org member contributors, and org member contributores and return this information to the client.
+
+
+## Client
+### Framework
+The client will utilize React v16 alongside [react-bootstrap](https://react-bootstrap.github.io/) to display a rich UI.
+[create-react-app](https://github.com/facebookincubator/create-react-app) is used to scafold the app and provide the tooling needed for bundling and css processing. 
+
+### Entry
+The base entry point is located at `githip/client/src/index.js`.
+This is where we create our React app and mount it to the DOM.
+`githip/client/src/index.js` contains global styling imports including our base page styles at `githip/client/src/index.css`.
+The entry component is located at `githip/client/src/App.js`.
+
+### Business Logic
+The App component holds all of the app logic and implements a poor man's router with simple if conditions on state.
+In bigger apps react-router would be better, but since this app is super simple, this should be perfect for now.
+
+The basic are this:
+- If we are loading, show a loader
+- Else If there isn't a organization, or there is an error, show the org picker page
+- Else if there is a repo set, show the repo stats
+- Else show a list of all repos for the org
+
+
+### Server interactions
+All http requests to the server are handled in a simple `actions.js` file.
+These actions use the `fetch` library and return a simple promise.
