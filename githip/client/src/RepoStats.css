@@ -1,0 +1,7 @@
+.jumbotron {
+    color: #333;
+}
+
+.commit-list > .list-group > .list-group-item {
+    background-color: transparent;
+}

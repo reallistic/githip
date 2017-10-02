@@ -1,0 +1,13 @@
+.header {
+    position: relative;
+    text-align: center;
+}
+
+.header-back-button {
+    position: absolute;
+    left: 0;
+}
+
+.panel {
+    color: #fff;
+}
