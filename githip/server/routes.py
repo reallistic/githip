@@ -17,12 +17,6 @@ async def get_org_data(_, org_name=None):
     return make_json_response(members=members, repos=repos)
 
 
-@blueprint.route('/organization/<org_name>/osi/<repo>', methods=['GET'])
-async def get_org_repo_osi(_, org_name=None, repo=None):
-    repo_osi = await organizations.get_osi(org_name, repo)
-    return make_json_response(osi=repo_osi)
-
-
 @blueprint.route('/organization/<org_name>/members', methods=['GET'])
 async def get_org_members(_, org_name=None):
     members = await organizations.get_members(org_name)
@@ -37,5 +31,8 @@ async def get_org_repos(_, org_name=None):
 
 @blueprint.route('/organization/<org_name>/repos/<repo>', methods=['GET'])
 async def get_repo_commits(_, org_name=None, repo=None):
-    commits = await organizations.get_commits(org_name, repo)
-    return make_json_response(commits=commits)
+    commits, stats = await asyncio.gather(
+        organizations.get_commits(org_name, repo),
+        organizations.get_stats(org_name, repo)
+    )
+    return make_json_response(commits=commits, stats=stats)

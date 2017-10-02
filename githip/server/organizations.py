@@ -66,30 +66,15 @@ def add_commits(total, stats):
     return sum(map(lambda week: week['c'], stats['weeks'])) + total
 
 
-def calculate_commits_per_week(contrib_stats):
+def calculate_commit_avg(contrib_stats):
+    if not contrib_stats:
+        return 0
+
     total_commits = functools.reduce(add_commits, contrib_stats, 0)
     num_weeks = len(contrib_stats[0]['weeks'])
     avg_per_week = float(total_commits) / float(num_weeks)
 
     return avg_per_week
-
-
-def calculate_commit_ratio(contrib_stats, members):
-    member_stats = []
-    non_member_stats = []
-
-    for stats in contrib_stats:
-        if stats['author']['login'] in members:
-            member_stats.append(stats)
-        else:
-            non_member_stats.append(stats)
-
-    member_commits = functools.reduce(add_commits, member_stats, 0)
-    non_member_commits = functools.reduce(add_commits, non_member_stats, 0)
-
-    ratio = float(non_member_commits) / float(member_commits)
-
-    return ratio
 
 
 async def get_members(org_name):
@@ -105,20 +90,37 @@ async def get_repos(org_name):
     return repos
 
 
-async def get_osi(org_name, repo):
+async def get_stats(org_name, repo):
     members, contrib_stats = await asyncio.gather(
         get_members(org_name),
         github.get_repo_contributor_stats(org_name, repo)
     )
 
     members = set([member['login'] for member in members])
+    member_stats = []
+    non_member_stats = []
 
-    average = calculate_commits_per_week(contrib_stats)
-    ratio = calculate_commit_ratio(contrib_stats, members)
+    for stats in contrib_stats:
+        if stats['author']['login'] in members:
+            member_stats.append(stats)
+        else:
+            non_member_stats.append(stats)
 
+    average = calculate_commit_avg(contrib_stats)
+    member_average = calculate_commit_avg(member_stats)
+    non_member_average = calculate_commit_avg(non_member_stats)
+    ratio = non_member_average / member_average
     osi = ratio * average
 
-    return osi
+    stats = dict(
+        osi=osi,
+        ratio=ratio,
+        commit_avg=average,
+        member_commit_avg=member_average,
+        non_member_commit_avg=non_member_average
+    )
+
+    return stats
 
 
 async def get_commits(org_name, repo):
