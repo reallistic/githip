@@ -36,6 +36,4 @@ def create_app():
     app.exception(SanicException)(handle_server_error)
     app.exception(errors.ApiError)(handle_api_error)
 
-    app.static('/static', './githip/dist/static')
-
     return app
