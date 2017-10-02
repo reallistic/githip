@@ -3,7 +3,7 @@
   "description": "Stats for github",
   "version": "0.0.1",
   "scripts": {
-    "heroku-prebuild": "cd githip/client; yarn && yarn build",
+    "heroku-prebuild": "npm install --prefix githip/client ./githip/client && npm run build --prefix githip/client",
     "heroku-postbuild": "echo 'Installed githip/client' && ls githip/client/build"
   }
 }
