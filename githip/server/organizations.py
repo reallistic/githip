@@ -109,7 +109,10 @@ async def get_stats(org_name, repo):
     average = calculate_commit_avg(contrib_stats)
     member_average = calculate_commit_avg(member_stats)
     non_member_average = calculate_commit_avg(non_member_stats)
-    ratio = non_member_average / member_average
+    if member_average == 0:
+        ratio = non_member_average
+    else:
+        ratio = non_member_average / member_average
     osi = ratio * average
 
     stats = dict(
